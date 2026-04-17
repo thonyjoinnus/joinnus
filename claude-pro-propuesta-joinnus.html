@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Pro — Propuesta Joinnus</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --ink: #1A1208;
+    --claude-orange: #D4622A;
+    --claude-warm: #E8845A;
+    --claude-muted: #C4956A;
+    --gpt-green: #19A37F;
+    --accent-gold: #C9952B;
+    --light-line: rgba(26,18,8,0.10);
+    --section-bg: #FDFAF4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    border-bottom: 1px solid var(--light-line);
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: 'CLAUDE';
+    position: absolute;
+    right: -40px;
+    bottom: -60px;
+    font-family: 'Playfair Display', serif;
+    font-size: 280px;
+    font-weight: 900;
+    color: rgba(212,98,42,0.04);
+    letter-spacing: -10px;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--claude-orange);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.1s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 8vw, 110px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.2s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--claude-orange);
+  }
+
+  .hero-sub {
+    max-width: 560px;
+    font-size: 18px;
+    font-weight: 400;
+    color: rgba(26,18,8,0.65);
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.35s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 48px;
+    align-items: flex-end;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.5s forwards;
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .hero-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--claude-orange);
+    line-height: 1;
+  }
+
+  .hero-stat-label {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    color: rgba(26,18,8,0.45);
+    text-transform: uppercase;
+  }
+
+  .hero-divider {
+    width: 1px;
+    height: 48px;
+    background: var(--light-line);
+  }
+
+  /* ─── SECTION SHARED ─── */
+  section {
+    padding: 100px 60px;
+    border-bottom: 1px solid var(--light-line);
+    position: relative;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--claude-muted);
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 60px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--claude-orange);
+  }
+
+  /* ─── PROBLEMA ─── */
+  .problema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 60px;
+    border: 1px solid var(--light-line);
+  }
+
+  .prob-card {
+    padding: 48px 40px;
+    background: var(--section-bg);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+  }
+
+  .prob-card:hover { background: white; }
+
+  .prob-card + .prob-card { border-left: 1px solid var(--light-line); }
+  .prob-card:nth-child(3) { border-top: 1px solid var(--light-line); }
+  .prob-card:nth-child(4) { border-top: 1px solid var(--light-line); border-left: 1px solid var(--light-line); }
+
+  .prob-icon {
+    font-size: 32px;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .prob-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .prob-card p {
+    font-size: 15px;
+    color: rgba(26,18,8,0.6);
+    line-height: 1.65;
+  }
+
+  .prob-card .tag {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--claude-orange);
+    border: 1px solid var(--claude-orange);
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  /* ─── ANALOGIA ─── */
+  .analogia-section {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  .analogia-section .section-label { color: var(--claude-muted); }
+  .analogia-section .section-title em { color: var(--claude-warm); }
+
+  .analogy-cards {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    margin-top: 64px;
+    align-items: stretch;
+  }
+
+  .analogy-card {
+    padding: 56px 48px;
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+
+  .analogy-card.highlight {
+    border-color: var(--claude-orange);
+    background: rgba(212,98,42,0.06);
+  }
+
+  .analogy-sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 32px;
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    color: rgba(255,255,255,0.15);
+    font-weight: 900;
+  }
+
+  .analogy-card .tool-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    color: rgba(245,240,232,0.4);
+  }
+
+  .analogy-card.highlight .tool-name { color: var(--claude-warm); }
+
+  .analogy-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  .analogy-card p {
+    font-size: 15px;
+    color: rgba(245,240,232,0.55);
+    line-height: 1.7;
+  }
+
+  .analogy-card .badge {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 8px 16px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(245,240,232,0.08);
+    color: rgba(245,240,232,0.5);
+  }
+
+  .analogy-card.highlight .badge {
+    background: var(--claude-orange);
+    color: white;
+  }
+
+  /* ─── CASOS ─── */
+  .casos-list {
+    margin-top: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .caso {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 0;
+    align-items: stretch;
+    border: 1px solid var(--light-line);
+    background: var(--section-bg);
+    cursor: default;
+    transition: background 0.25s ease;
+    overflow: hidden;
+  }
+
+  .caso:hover { background: white; }
+
+  .caso-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--claude-orange);
+    border-right: 1px solid var(--light-line);
+    letter-spacing: 1px;
+  }
+
+  .caso-body {
+    padding: 36px 40px;
+  }
+
+  .caso-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .caso-desc {
+    font-size: 15px;
+    color: rgba(26,18,8,0.6);
+    line-height: 1.65;
+    max-width: 560px;
+  }
+
+  .caso-impact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 36px 40px;
+    border-left: 1px solid var(--light-line);
+    min-width: 200px;
+    gap: 6px;
+  }
+
+  .caso-impact-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 900;
+    color: var(--claude-orange);
+    line-height: 1;
+  }
+
+  .caso-impact-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(26,18,8,0.4);
+    text-align: right;
+  }
+
+  /* ─── COMPARATIVA ─── */
+  .tabla-section { background: var(--section-bg); }
+
+  .tabla-wrap {
+    margin-top: 64px;
+    border: 1px solid var(--light-line);
+    overflow: hidden;
+  }
+
+  .tabla-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  .th {
+    padding: 20px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.5);
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .th:last-child { border-right: none; }
+  .th.hl { color: var(--claude-warm); }
+
+  .tabla-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    border-top: 1px solid var(--light-line);
+    transition: background 0.2s ease;
+  }
+
+  .tabla-row:hover { background: rgba(212,98,42,0.03); }
+
+  .td {
+    padding: 20px 28px;
+    font-size: 14px;
+    border-right: 1px solid var(--light-line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(26,18,8,0.75);
+  }
+
+  .td:last-child { border-right: none; }
+  .td:first-child { font-weight: 500; color: var(--ink); }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-high { background: var(--claude-orange); }
+  .dot-mid { background: var(--accent-gold); }
+  .dot-low { background: rgba(26,18,8,0.2); }
+  .dot-green { background: var(--gpt-green); }
+
+  .td.impact-col {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: rgba(26,18,8,0.5);
+  }
+
+  /* ─── ROI ─── */
+  .roi-section {
+    background: var(--claude-orange);
+    color: white;
+  }
+
+  .roi-section .section-label { color: rgba(255,255,255,0.5); }
+  .roi-section .section-title { color: white; }
+  .roi-section .section-title em { color: var(--cream); font-style: italic; }
+
+  .roi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+  }
+
+  .roi-card {
+    background: rgba(0,0,0,0.12);
+    padding: 48px 40px;
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: background 0.25s ease;
+  }
+
+  .roi-card:hover { background: rgba(0,0,0,0.2); }
+
+  .roi-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 12px;
+    letter-spacing: -3px;
+  }
+
+  .roi-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .roi-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.65;
+  }
+
+  /* ─── CIERRE ─── */
+  .cierre-section {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--ink);
+    color: var(--cream);
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cierre-section::before {
+    content: '"';
+    position: absolute;
+    left: 40px;
+    top: -80px;
+    font-family: 'Playfair Display', serif;
+    font-size: 600px;
+    color: rgba(212,98,42,0.05);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .quote-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 64px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -2px;
+    max-width: 880px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .quote-text em { color: var(--claude-warm); font-style: italic; }
+
+  .quote-attr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.35);
+    margin-bottom: 56px;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .cta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: default;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .cta-pill:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
+  .cta-primary {
+    background: var(--claude-orange);
+    color: white;
+    border: 1px solid var(--claude-orange);
+  }
+
+  .cta-secondary {
+    background: transparent;
+    color: rgba(245,240,232,0.6);
+    border: 1px solid rgba(245,240,232,0.15);
+  }
+
+  .cta-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 32px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.25);
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    backdrop-filter: blur(16px);
+    background: rgba(245,240,232,0.85);
+    border-bottom: 1px solid var(--light-line);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo span { color: var(--claude-orange); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(26,18,8,0.45);
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover { color: var(--claude-orange); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section, .hero { padding: 80px 24px; }
+    .hero { padding-top: 120px; }
+    .problema-grid, .analogy-cards, .roi-grid { grid-template-columns: 1fr; }
+    .analogy-sep { display: none; }
+    .analogy-card + .analogy-card { border-top: 1px solid rgba(255,255,255,0.08); }
+    .tabla-header, .tabla-row { grid-template-columns: 2fr 1fr 1fr; }
+    .tabla-header .th:last-child, .tabla-row .td:last-child { display: none; }
+    .caso { grid-template-columns: 48px 1fr; }
+    .caso-impact { display: none; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Joinnus <span>×</span> Claude Pro</div>
+  <ul class="nav-links">
+    <li><a href="#problema">El gap</a></li>
+    <li><a href="#casos">Casos de uso</a></li>
+    <li><a href="#tabla">Comparativa</a></li>
+    <li><a href="#roi">ROI</a></li>
+    <li><a href="#cierre">Recomendación</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-eyebrow">Propuesta · Especialista Martech · Joinnus 2025</div>
+  <h1 class="hero-title">
+    ChatGPT nos hace<br>rápidos. Claude nos<br>hace <em>eficientes.</em>
+  </h1>
+  <p class="hero-sub">
+    Una inversión de $20/mes para cubrir el gap analítico, técnico y de automatización que hoy le cuesta horas al equipo.
+  </p>
+  <div class="hero-meta">
+    <div class="hero-stat">
+      <span class="hero-stat-num">$20</span>
+      <span class="hero-stat-label">Costo mensual</span>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">−50%</span>
+      <span class="hero-stat-label">Tiempo en reporting</span>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">2–3h</span>
+      <span class="hero-stat-label">Para recuperar la inversión</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── EL PROBLEMA ─── -->
+<section id="problema">
+  <div class="section-label">01 — El gap actual</div>
+  <h2 class="section-title">Lo que ChatGPT <em>no cubre</em></h2>
+  <p style="max-width:560px; color:rgba(26,18,8,0.6); font-size:16px; margin-top:16px;">
+    ChatGPT Plus ya está pagado y cubre velocidad y contenido. Pero hay un conjunto de tareas críticas para el rol de Martech donde el equipo sigue operando de forma manual o subóptima.
+  </p>
+
+  <div class="problema-grid reveal">
+    <div class="prob-card">
+      <span class="prob-icon">📊</span>
+      <h3>Reportes que toman horas</h3>
+      <p>Construir un reporte de GA4 + Meta + funnel sigue siendo un proceso manual, inconsistente y propenso a errores.</p>
+      <span class="tag">Tiempo malgastado</span>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">⚙️</span>
+      <h3>Automatizaciones sin arquitectura</h3>
+      <p>Se generan snippets aislados pero no flujos completos (n8n, APIs, webhooks). El resultado: procesos que no escalan.</p>
+      <span class="tag">Dependencia técnica</span>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">🔍</span>
+      <h3>Análisis de funnel superficial</h3>
+      <p>Identificar fricciones reales en el funnel requiere razonar sobre múltiples fuentes de datos simultáneamente.</p>
+      <span class="tag">Decisiones lentas</span>
+    </div>
+    <div class="prob-card">
+      <span class="prob-icon">🧑‍💻</span>
+      <h3>Implementaciones técnicas lentas</h3>
+      <p>GTM, píxeles, eventos personalizados: cada implementación implica debugging, errores y múltiples revisiones.</p>
+      <span class="tag">Alta fricción técnica</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ANALOGIA ─── -->
+<section class="analogia-section">
+  <div class="section-label">02 — El posicionamiento</div>
+  <h2 class="section-title">No compiten. <em>Se complementan.</em></h2>
+  <p style="max-width:540px; color:rgba(245,240,232,0.5); font-size:16px; margin-top:16px;">
+    La pregunta no es "¿cuál es mejor?" — la pregunta correcta es: ¿qué cubre cada uno?
+  </p>
+
+  <div class="analogy-cards reveal">
+    <div class="analogy-card">
+      <div class="tool-name">ChatGPT Plus · Actual</div>
+      <h3>Equipo creativo rápido</h3>
+      <p>Velocidad de ejecución, generación de contenido, brainstorming, redacción y respuestas ágiles. Ideal para el día a día.</p>
+      <span class="badge">✓ Ya pagado — mantener</span>
+    </div>
+    <div class="analogy-sep">+</div>
+    <div class="analogy-card highlight">
+      <div class="tool-name">Claude Pro · Propuesta</div>
+      <h3>Analista senior + arquitecto de sistemas</h3>
+      <p>Análisis profundo, automatizaciones completas, documentos extensos, razonamiento estructurado y precisión técnica sostenida.</p>
+      <span class="badge">→ Contratar</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CASOS DE USO ─── -->
+<section id="casos">
+  <div class="section-label">03 — Valor concreto</div>
+  <h2 class="section-title">Casos de uso <em>reales</em></h2>
+  <p style="max-width:560px; color:rgba(26,18,8,0.6); font-size:16px; margin-top:16px;">
+    No es teoría. Estos son los procesos del día a día que Claude Pro transforma directamente.
+  </p>
+
+  <div class="casos-list reveal">
+    <div class="caso">
+      <div class="caso-num">01</div>
+      <div class="caso-body">
+        <div class="caso-title">Reportes automatizados (GA4, Meta, funnels)</div>
+        <p class="caso-desc">Claude genera reportes estructurados en HTML con insights accionables. Menos horas de análisis manual, mayor claridad para tomar decisiones de campaña y presupuesto.</p>
+      </div>
+      <div class="caso-impact">
+        <div class="caso-impact-num">−50%</div>
+        <div class="caso-impact-label">Tiempo en<br>reporting</div>
+      </div>
+    </div>
+
+    <div class="caso">
+      <div class="caso-num">02</div>
+      <div class="caso-body">
+        <div class="caso-title">Automatización con n8n, APIs y workflows</div>
+        <p class="caso-desc">Diseña flujos completos, no solo fragmentos de código. Permite escalar procesos operativos sin headcount adicional ni dependencia de un equipo técnico externo.</p>
+      </div>
+      <div class="caso-impact">
+        <div class="caso-impact-num">↑ 3×</div>
+        <div class="caso-impact-label">Velocidad de<br>automatización</div>
+      </div>
+    </div>
+
+    <div class="caso">
+      <div class="caso-num">03</div>
+      <div class="caso-body">
+        <div class="caso-title">Análisis de funnels y puntos de fricción</div>
+        <p class="caso-desc">Detecta fricciones reales en el embudo y propone mejoras estructurales con base en datos. Mejora de conversión con impacto directo en revenue.</p>
+      </div>
+      <div class="caso-impact">
+        <div class="caso-impact-num">↑ Rev</div>
+        <div class="caso-impact-label">Impacto en<br>conversión</div>
+      </div>
+    </div>
+
+    <div class="caso">
+      <div class="caso-num">04</div>
+      <div class="caso-body">
+        <div class="caso-title">Implementaciones técnicas (GTM, píxeles, eventos)</div>
+        <p class="caso-desc">Mejora la calidad de implementaciones de tracking, reduce errores y tiempo de debugging. Menos dependencia técnica y mayor velocidad de ejecución.</p>
+      </div>
+      <div class="caso-impact">
+        <div class="caso-impact-num">−70%</div>
+        <div class="caso-impact-label">Tiempo de<br>debugging</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TABLA COMPARATIVA ─── -->
+<section id="tabla" class="tabla-section">
+  <div class="section-label">04 — Comparativa</div>
+  <h2 class="section-title">Head to head: <em>criterios de negocio</em></h2>
+
+  <div class="tabla-wrap reveal">
+    <div class="tabla-header">
+      <div class="th">Criterio</div>
+      <div class="th">ChatGPT Plus</div>
+      <div class="th hl">Claude Pro</div>
+      <div class="th">Impacto</div>
+    </div>
+
+    <div class="tabla-row">
+      <div class="td">Análisis de data y funnels</div>
+      <div class="td"><span class="dot dot-mid"></span>Medio</div>
+      <div class="td"><span class="dot dot-high"></span>Alto</div>
+      <div class="td impact-col">Mejores decisiones</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Generación de reportes</div>
+      <div class="td"><span class="dot dot-mid"></span>Medio</div>
+      <div class="td"><span class="dot dot-high"></span>Alto</div>
+      <div class="td impact-col">Ahorro de tiempo + calidad</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Automatización de procesos</div>
+      <div class="td"><span class="dot dot-low"></span>Bajo</div>
+      <div class="td"><span class="dot dot-high"></span>Alto</div>
+      <div class="td impact-col">Menos trabajo manual</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Construcción de workflows</div>
+      <div class="td"><span class="dot dot-mid"></span>Medio</div>
+      <div class="td"><span class="dot dot-high"></span>Alto</div>
+      <div class="td impact-col">Escalabilidad operativa</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Documentos largos y research</div>
+      <div class="td"><span class="dot dot-mid"></span>Medio</div>
+      <div class="td"><span class="dot dot-high"></span>Muy alto</div>
+      <div class="td impact-col">Reducción de errores</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Precisión en tareas críticas</div>
+      <div class="td"><span class="dot dot-mid"></span>Variable</div>
+      <div class="td"><span class="dot dot-high"></span>Consistente</div>
+      <div class="td impact-col">Menor riesgo operativo</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Soporte técnico (scripts, APIs)</div>
+      <div class="td"><span class="dot dot-green"></span>Bueno</div>
+      <div class="td"><span class="dot dot-high"></span>Superior</div>
+      <div class="td impact-col">Implementaciones más rápidas</div>
+    </div>
+    <div class="tabla-row">
+      <div class="td">Velocidad de ejecución</div>
+      <div class="td"><span class="dot dot-green"></span>Alta</div>
+      <div class="td"><span class="dot dot-mid"></span>Media</div>
+      <div class="td impact-col">✓ ChatGPT cubre esto</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ROI ─── -->
+<section id="roi" class="roi-section">
+  <div class="section-label">05 — Justificación económica</div>
+  <h2 class="section-title">El ROI es <em>inmediato</em></h2>
+
+  <div class="roi-grid reveal">
+    <div class="roi-card">
+      <div class="roi-number">$20</div>
+      <div class="roi-title">Costo mensual total</div>
+      <div class="roi-desc">Claude Pro cuesta lo mismo que un almuerzo de equipo. La pregunta no es si podemos pagarlo — es cuánto cuesta no tenerlo.</div>
+    </div>
+    <div class="roi-card">
+      <div class="roi-number">2–3h</div>
+      <div class="roi-title">Para recuperar la inversión</div>
+      <div class="roi-desc">Con ahorrar solo 2–3 horas al mes en reporting, análisis o debugging, el costo está más que cubierto. Todo lo demás es ganancia operativa pura.</div>
+    </div>
+    <div class="roi-card">
+      <div class="roi-number">∞</div>
+      <div class="roi-title">Escalabilidad sin headcount</div>
+      <div class="roi-desc">Automatizar procesos repetitivos significa crecer la capacidad operativa del equipo sin contratar. Claude es multiplicador, no reemplazante.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CIERRE ─── -->
+<section id="cierre" class="cierre-section">
+  <p class="quote-attr">Recomendación final · Especialista Martech</p>
+  <blockquote class="quote-text reveal">
+    "ChatGPT nos hace más rápidos.<br>
+    Claude nos hace más <em>eficientes y precisos.</em>"
+  </blockquote>
+  <p style="max-width:560px; color:rgba(245,240,232,0.5); font-size:16px; margin-bottom:48px; line-height:1.7;" class="reveal">
+    La propuesta no es reemplazar ChatGPT Plus — es complementarlo con la capa técnica y analítica que hoy no tenemos cubierta. La combinación permite ejecutar rápido, pensar mejor y escalar procesos sin fricciones.
+  </p>
+  <div class="cta-row reveal">
+    <div class="cta-pill cta-primary">
+      <span class="cta-dot"></span>
+      Aprobar Claude Pro — $20/mes
+    </div>
+    <div class="cta-pill cta-secondary">
+      Mantener ChatGPT Plus (ya pagado)
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Joinnus · Área Martech · 2025</span>
+  <span>Elaborado con Claude Pro — un ejemplo de lo que puede hacer</span>
+</footer>
+
+<script>
+  // Intersection Observer para reveal animations
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
